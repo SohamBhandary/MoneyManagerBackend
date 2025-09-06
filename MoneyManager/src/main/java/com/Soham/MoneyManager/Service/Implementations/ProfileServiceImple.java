@@ -1,14 +1,23 @@
 package com.Soham.MoneyManager.Service.Implementations;
 
+import com.Soham.MoneyManager.DTO.AuthDTO;
 import com.Soham.MoneyManager.DTO.ProfileDTO;
 import com.Soham.MoneyManager.Entities.Profile;
 import com.Soham.MoneyManager.Repositories.ProfileRepository;
 import com.Soham.MoneyManager.Service.EmailService;
 import com.Soham.MoneyManager.Service.ProfileService;
+import com.Soham.MoneyManager.Utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -19,16 +28,27 @@ public class ProfileServiceImple implements ProfileService {
 
     @Autowired
     private com.Soham.MoneyManager.Service.EmailService emailService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private final JWTUtil jwtUtil;
+
     @Override
     public ProfileDTO registerProfile(ProfileDTO profileDTO) {
 
      Profile newProfile= toEntity(profileDTO);
      newProfile.setActivationToken(UUID.randomUUID().toString());
+
      newProfile=profileRepository.save(newProfile);
         String activationLink = "http://localhost:8080/api/activate?token=" + newProfile.getActivationToken();
         String sub = "Activate Your Money Manager Account";
         String body = "Click on the following link to activate your account: " + activationLink;
      emailService.sendEmail(newProfile.getEmail(),sub,body);
+
+
 
      return toDTO(newProfile);
 
@@ -48,7 +68,7 @@ public class ProfileServiceImple implements ProfileService {
                 .id(profileDTO.getId())
                 .fullName(profileDTO.getFullName())
                 .email(profileDTO.getEmail())
-                .password(profileDTO.getPassword())
+                .password(passwordEncoder.encode(profileDTO.getPassword()))
                 .profileImageUrl(profileDTO.getProfileImageUrl())
                 .createdAt(profileDTO.getCreatedAt())
                 .updatedAt(profileDTO.getUpdatedAt())
@@ -64,4 +84,52 @@ public class ProfileServiceImple implements ProfileService {
                 .updatedAt(profile.getUpdatedAt())
                 .build();
     }
+
+    public boolean isAccountActive(String email){
+        return profileRepository.findByEmail(email).map(Profile::getIsActive).orElse(false);
+
+    }
+    public Profile getCurrentProfile(){
+
+       Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+      return profileRepository.
+              findByEmail(authentication.getName()).
+              orElseThrow(()->new UsernameNotFoundException("Profile not found with email address" + authentication.getName()));
+
+
+    }
+
+    public ProfileDTO getPublicProfile(String email){
+        Profile currentUser=null;
+        if(email==null){
+           currentUser= getCurrentProfile();
+        }
+        else{
+          currentUser=  profileRepository.findByEmail(email)
+                  .orElseThrow(()->new UsernameNotFoundException("Profile not found with email address"+ email));
+
+        }
+        return ProfileDTO.builder()
+                .id(currentUser.getId())
+                .fullName(currentUser.getFullName())
+                .profileImageUrl(currentUser.getProfileImageUrl())
+                .createdAt(currentUser.getCreatedAt())
+                .updatedAt(currentUser.getUpdatedAt())
+                .build();
+
+    }
+    public Map<String, Object> authenticateAndGenerateToken(AuthDTO authDTO) {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDTO.getEmail(), authDTO.getPassword()));
+
+            String token = jwtUtil.generateToken(authDTO.getEmail());
+            return Map.of(
+                    "token", token,
+                    "user", getPublicProfile(authDTO.getEmail())
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid email or password");
+        }
+    }
+
 }
