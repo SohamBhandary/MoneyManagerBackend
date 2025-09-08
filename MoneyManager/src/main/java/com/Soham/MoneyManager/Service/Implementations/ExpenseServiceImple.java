@@ -11,8 +11,10 @@ import com.Soham.MoneyManager.Service.CategoryService;
 import com.Soham.MoneyManager.Service.ExpenseService;
 import com.Soham.MoneyManager.Service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -60,6 +62,31 @@ public class ExpenseServiceImple  implements ExpenseService {
 
     }
 
+    public List<ExpenseDTO> getLatest5expensenseForCurrentUser(){
+        Profile profile=profileService.getCurrentProfile();
+      List<Expense> list=  expenseRepository.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+      return list.stream().map(this::toDTO).toList();
+    }
+
+    public BigDecimal getTotalExpenseForCurrentUser(){
+      Profile profile=  profileService.getCurrentProfile();
+   BigDecimal total=   expenseRepository.findTotalExpenseByProfileId(profile.getId());
+   return  total!=null?total:BigDecimal.ZERO;
+
+    }
+
+    public List<ExpenseDTO> filterExpenses(LocalDate start, LocalDate end, String keyword, Sort sort){
+
+      Profile  profile= profileService.getCurrentProfile();
+   List<Expense> list=   expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(profile.getId(),start,end,keyword,sort);
+  return list.stream().map(this::toDTO).toList();
+    }
+
+    public List<ExpenseDTO> getExpensesForUserOnDate(Long profileId,LocalDate date){
+      List<Expense> list=  expenseRepository.findByProfileIdAndDate(profileId,date);
+     return list.stream().map(this::toDTO).toList();
+
+    }
 
 
 

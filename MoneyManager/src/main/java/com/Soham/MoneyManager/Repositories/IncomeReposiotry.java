@@ -20,6 +20,8 @@ public interface IncomeReposiotry extends JpaRepository<Income,Long> {
             "amount) FROM Income e where e.profile.id=:profileId")
     BigDecimal findTotalExpenseByProfileId(@Param("profileId") Long profileId);
 
-    List<Income>  findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(Long profileId, LocalDate startDate, LocalDate endDate, String keyword, Sort sort);
+
+    List<Income> findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
+            Long profileId, LocalDate startDate, LocalDate endDate, String keyword, Sort sort);
     List<Income> findByProfileIdAndDateBetween(Long profileId, LocalDate startDate, LocalDate endDate);
 }

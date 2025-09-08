@@ -15,8 +15,10 @@ import com.Soham.MoneyManager.Service.CategoryService;
 import com.Soham.MoneyManager.Service.IncomeService;
 import com.Soham.MoneyManager.Service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -70,6 +72,28 @@ public class IncomeServiceImple implements IncomeService {
 
 
     }
+    public List<IncomeDTO> getLatest5expensenseForCurrentUser(){
+        Profile profile=profileService.getCurrentProfile();
+        List<Income> list=  incomeReposiotry.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+        return list.stream().map(this::toDTO).toList();
+    }
+
+    public BigDecimal getTotalExpenseForCurrentUser(){
+        Profile profile=  profileService.getCurrentProfile();
+        BigDecimal total=   incomeReposiotry.findTotalExpenseByProfileId(profile.getId());
+        return  total!=null?total:BigDecimal.ZERO;
+
+    }
+    public List<IncomeDTO> filterExpenses(LocalDate start, LocalDate end, String keyword, Sort sort){
+
+        Profile  profile= profileService.getCurrentProfile();
+        List<Income> list=   incomeReposiotry.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(profile.getId(), start, end, keyword, sort);
+        return list.stream().map(this::toDTO).toList();
+
+
+
+
+    }
 
 
     public Income toEntity(IncomeDTO dto, Profile profile, Category category){
@@ -83,6 +107,7 @@ public class IncomeServiceImple implements IncomeService {
                 .build();
 
     }
+
     public IncomeDTO toDTO(Income expense){
         return   IncomeDTO.builder()
                 .id(expense.getId())

@@ -27,7 +27,7 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityCofig {
-  private final JWTReqFilter jwtReqFilter;
+    private final JWTReqFilter jwtReqFilter;
 
     private final AppUserDetailsService appUserDetailsService; // constructor injection
 
@@ -49,7 +49,7 @@ public class SecurityCofig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
              )
-    .addFilterBefore(jwtReqFilter, UsernamePasswordAuthenticationFilter.class);
+  .addFilterBefore(jwtReqFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
