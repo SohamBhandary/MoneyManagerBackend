@@ -9,6 +9,7 @@ import com.Soham.MoneyManager.Service.DashboardService;
 import com.Soham.MoneyManager.Service.ExpenseService;
 import com.Soham.MoneyManager.Service.IncomeService;
 import com.Soham.MoneyManager.Service.ProfileService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
 import static java.util.stream.DoubleStream.concat;
 
 @Service
+@Slf4j
 public class DashboardServiceImple implements DashboardService {
     @Autowired
     private IncomeService incomeService;
@@ -30,8 +32,10 @@ public class DashboardServiceImple implements DashboardService {
     private ProfileService profileService;
 
     public Map<String,Object> getDashboardData(){
+        log.info("Fetching dashboard data for current user");
         Profile profile=profileService.getCurrentProfile();
         Map<String,Object> returnVal= new LinkedHashMap<>();
+        log.info("Fetching latest 5 incomes and current month expenses for profile {}", profile.getId());
      List<IncomeDTO> latestIncome= incomeService.getLatest5expensenseForCurrentUser();
      List<ExpenseDTO> latestExpense= expenseService.getCurrentMonthExpenseForCurrentUser();
         List<RecentTransacationsDTO> recentTransactions = Stream
@@ -70,11 +74,14 @@ public class DashboardServiceImple implements DashboardService {
         returnVal.put("totalBalance",incomeService.getTotalExpenseForCurrentUser()
                 .subtract(expenseService.getTotalExpenseForCurrentUser()));
 
+        log.info("Calculating total balance, income, and expense");
+
         returnVal.put("totalIncome",incomeService.getTotalExpenseForCurrentUser());
         returnVal.put("totalExpense",expenseService.getTotalExpenseForCurrentUser());
         returnVal.put("recent5Expenses",latestExpense);
         returnVal.put("recent5Incomes",latestIncome);
         returnVal.put("recenTransactions",recentTransactions);
+        log.info("Dashboard data prepared successfully for profile {}", profile.getId());
         return  returnVal;
 
 

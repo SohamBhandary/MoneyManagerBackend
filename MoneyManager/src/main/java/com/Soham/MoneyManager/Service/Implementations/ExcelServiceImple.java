@@ -3,6 +3,7 @@ package com.Soham.MoneyManager.Service.Implementations;
 import com.Soham.MoneyManager.DTO.ExpenseDTO;
 import com.Soham.MoneyManager.DTO.IncomeDTO;
 import com.Soham.MoneyManager.Service.ExcelService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -15,9 +16,11 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
+@Slf4j
 public class ExcelServiceImple implements ExcelService {
 
     public void writeIncomesToExcel(OutputStream os, List<IncomeDTO> incomes){
+        log.info("Writing {} incomes to Excel", incomes.size());
 
         try(Workbook workbook = new XSSFWorkbook()){
          Sheet sheet= workbook.createSheet("Incomes");
@@ -37,11 +40,13 @@ public class ExcelServiceImple implements ExcelService {
 
             });
             workbook.write(os);
+            log.info("Successfully wrote {} incomes to Excel", incomes.size());
 
 
 
 
         } catch (IOException e) {
+            log.error("Failed to write incomes to Excel: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
 
@@ -50,6 +55,7 @@ public class ExcelServiceImple implements ExcelService {
     public void writeExpensesToExcel(OutputStream os, List<ExpenseDTO> exp){
 
         try(Workbook workbook = new XSSFWorkbook()){
+            log.info("Writing {} expenses to Excel", exp.size());
             Sheet sheet= workbook.createSheet("Expenses");
             Row header= sheet.createRow(0);
             header.createCell(0).setCellValue("S.No");
@@ -67,11 +73,13 @@ public class ExcelServiceImple implements ExcelService {
 
             });
             workbook.write(os);
+            log.info("Successfully wrote {} expenses to Excel", exp.size());
 
 
 
 
         } catch (IOException e) {
+            log.error("Failed to write expenses to Excel: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
 
