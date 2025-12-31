@@ -33,12 +33,14 @@ public class NotificationServiceImple implements NotificationService {
     public void sendDailyIncomeExpenseReminder() {
         log.info("job started:sendDailyIncomeExpenseReminder()");
         List<Profile> profileList = profileRepository.findAll();
+        log.info("Total profiles to process for reminder: {}", profileList.size());
         for (Profile profile : profileList) {
             String body = "Hi " + profile.getFullName() + ",<br><br>"
                     + "This is a friendly reminder to add your income and expenses for today in Money Manager.<br><br>"
                     + "<a href=" + froentendUrl + " style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:#fff;text-decoration:none;border-radius:5px;font-weight:bold;'>Go to Money Manager</a>"
                     + "<br><br>Best regards,<br>Money Manager Team";
             emailService.sendEmail(profile.getEmail(), "Daily reminder: Add your income and expenses", body);
+
         }
         log.info("Job completed:sendDailyIncomeExpenseReminder() ");
     }

@@ -8,6 +8,7 @@ import com.Soham.MoneyManager.Service.EmailService;
 import com.Soham.MoneyManager.Service.ProfileService;
 import com.Soham.MoneyManager.Utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProfileServiceImple implements ProfileService {
     @Autowired
     private ProfileRepository profileRepository;
@@ -38,15 +40,19 @@ public class ProfileServiceImple implements ProfileService {
 
     @Override
     public ProfileDTO registerProfile(ProfileDTO profileDTO) {
+        log.info("Registering new profile with email: {}", profileDTO.getEmail());
 
-     Profile newProfile= toEntity(profileDTO);
+
+        Profile newProfile= toEntity(profileDTO);
      newProfile.setActivationToken(UUID.randomUUID().toString());
 
      newProfile=profileRepository.save(newProfile);
+        log.info("Profile saved successfully with ID: {}", newProfile.getId());
         String activationLink = "http://localhost:8080/api/activate?token=" + newProfile.getActivationToken();
         String sub = "Activate Your Money Manager Account";
         String body = "Click on the following link to activate your account: " + activationLink;
      emailService.sendEmail(newProfile.getEmail(),sub,body);
+        log.info("Activation email sent to: {}", newProfile.getEmail());
 
 
 
@@ -58,6 +64,7 @@ public class ProfileServiceImple implements ProfileService {
 
     @Override
     public boolean activateProfile(String activationToken) {
+        log.info("Activating profile with token: {}", activationToken);
         return profileRepository.findByActivationToken(activationToken).map(profile -> {profile.setIsActive(true);
         profileRepository.save(profile);
         return  true;} ).orElse(false);
