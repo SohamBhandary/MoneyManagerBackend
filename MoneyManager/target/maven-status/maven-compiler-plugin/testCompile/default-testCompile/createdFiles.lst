@@ -1,0 +1,8 @@
+com\Soham\MoneyManager\Service\Implementations\NotificationServiceImpleTest.class
+com\Soham\MoneyManager\Service\Implementations\EmailServiceImpleTest.class
+com\Soham\MoneyManager\Service\Implementations\ExcelServiceImpleTest.class
+com\Soham\MoneyManager\Service\Implementations\CategoryServiceImpleTest.class
+com\Soham\MoneyManager\Service\Implementations\IncomeServiceImpleTest.class
+com\Soham\MoneyManager\Service\Implementations\ExpenseServiceImpleTest.class
+com\Soham\MoneyManager\MoneyManagerApplicationTests.class
+com\Soham\MoneyManager\Service\Implementations\DashboardServiceImpleTest.class
