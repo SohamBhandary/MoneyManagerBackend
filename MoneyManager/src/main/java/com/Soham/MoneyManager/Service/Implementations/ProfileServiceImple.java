@@ -10,6 +10,7 @@ import com.Soham.MoneyManager.Utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,6 +39,9 @@ public class ProfileServiceImple implements ProfileService {
     @Autowired
     private final JWTUtil jwtUtil;
 
+    @Value("${app.activation.url}")
+    private String activationurl;
+
     @Override
     public ProfileDTO registerProfile(ProfileDTO profileDTO) {
         log.info("Registering new profile with email: {}", profileDTO.getEmail());
@@ -48,7 +52,7 @@ public class ProfileServiceImple implements ProfileService {
 
      newProfile=profileRepository.save(newProfile);
         log.info("Profile saved successfully with ID: {}", newProfile.getId());
-        String activationLink = "http://localhost:8080/api/activate?token=" + newProfile.getActivationToken();
+        String activationLink = activationurl+"/activate?token=" + newProfile.getActivationToken();
         String sub = "Activate Your Money Manager Account";
         String body = "Click on the following link to activate your account: " + activationLink;
      emailService.sendEmail(newProfile.getEmail(),sub,body);
