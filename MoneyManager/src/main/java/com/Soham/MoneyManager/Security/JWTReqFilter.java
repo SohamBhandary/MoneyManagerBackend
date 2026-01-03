@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
+@Slf4j
 public class JWTReqFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -24,6 +26,19 @@ public class JWTReqFilter extends OncePerRequestFilter {
 
     @Autowired
     private JWTUtil jwtUtil;
+
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getServletPath();
+
+        return path.startsWith("/api/register")
+                || path.startsWith("/api/login")
+                || path.startsWith("/api/activate")
+                || path.startsWith("/api/status")
+                || path.startsWith("/api/health");
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -36,18 +51,17 @@ public class JWTReqFilter extends OncePerRequestFilter {
         String email = null;
         String jwt = null;
 
-        // Extract the JWT token from header
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7); // remove "Bearer "
-            email = jwtUtil.extractUsername(jwt); // extract email/username from token
+            jwt = authHeader.substring(7);
+            email = jwtUtil.extractUsername(jwt);
         }
 
-        // Validate token and set authentication
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
             if (jwtUtil.validateToken(jwt, userDetails)) {
+
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
@@ -60,6 +74,8 @@ public class JWTReqFilter extends OncePerRequestFilter {
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                log.debug("JWT authenticated user: {}", email);
             }
         }
 

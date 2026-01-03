@@ -1,7 +1,5 @@
 package com.Soham.MoneyManager.Config;
 
-//import com.Soham.MoneyManager.Security.JWTReqFilter;
-
 import com.Soham.MoneyManager.Security.JWTReqFilter;
 import com.Soham.MoneyManager.Service.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -26,32 +24,36 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-public class SecurityCofig {
-    private final JWTReqFilter jwtReqFilter;
+public class SecurityConfig {
 
-    private final AppUserDetailsService appUserDetailsService; // constructor injection
+    private final JWTReqFilter jwtReqFilter;
+    private final AppUserDetailsService appUserDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/status",
-                                "/health",
-                                "/register",
-                                "/activate",
-                                "/login"
+                                "/api/status",
+                                "/api/health",
+                                "/api/register",
+                                "/api/login",
+                                "/api/activate/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-             )
-  .addFilterBefore(jwtReqFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return httpSecurity.build();
+                .addFilterBefore(jwtReqFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 
     @Bean
@@ -61,22 +63,23 @@ public class SecurityCofig {
 
     @Bean
     public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(appUserDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return new ProviderManager(authProvider);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(appUserDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(provider);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-        configuration.setAllowCredentials(true);
+
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }
