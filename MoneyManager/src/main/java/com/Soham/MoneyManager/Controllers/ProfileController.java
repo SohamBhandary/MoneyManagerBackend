@@ -28,37 +28,17 @@ public class ProfileController {
     }
 
 
-    @GetMapping("/activate")
-    public ResponseEntity<String> activate(@RequestParam String token) {
-        boolean isActivated = profileService.activateProfile(token);
-        if (isActivated) {
-            return ResponseEntity.ok("Profile activated successfully");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Activation token already used or invalid");
-        }
-    }
-
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody AuthDTO authDTO) {
         try {
-
-            if (!profileService.isAccountActive(authDTO.getEmail())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("message", "Account not active. Please activate your account first"));
-            }
-
             Map<String, Object> res = profileService.authenticateAndGenerateToken(authDTO);
             return ResponseEntity.ok(res);
-
-        }  catch (Exception e) {
-
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Something went wrong: " + e.getMessage()));
         }
     }
-
     @GetMapping("/test")
     public String test(){
         return "test succesful";

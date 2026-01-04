@@ -33,12 +33,12 @@ public class Profile {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
     private Boolean isActive;
-    private String activationToken;
+
 
     @PrePersist
     public void prePersist(){
         if(this.isActive==null){
-            isActive=false;
+            isActive=true;
         }
     }
 

@@ -10,7 +10,7 @@ import java.util.Map;
 public interface ProfileService {
 
     ProfileDTO registerProfile(ProfileDTO profileDTO);
-    boolean activateProfile(String activationToken);
+
     boolean isAccountActive(String email);
     public Map<String, Object> authenticateAndGenerateToken(AuthDTO authDTO);
     public Profile toEntity(ProfileDTO  profileDTO);

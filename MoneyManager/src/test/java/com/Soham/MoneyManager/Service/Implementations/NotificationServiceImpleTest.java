@@ -3,7 +3,6 @@ package com.Soham.MoneyManager.Service.Implementations;
 import com.Soham.MoneyManager.DTO.ExpenseDTO;
 import com.Soham.MoneyManager.Entities.Profile;
 import com.Soham.MoneyManager.Repositories.ProfileRepository;
-import com.Soham.MoneyManager.Service.EmailService;
 import com.Soham.MoneyManager.Service.ExpenseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
