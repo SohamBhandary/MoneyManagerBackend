@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.Soham.MoneyManager.Service.Implementations.ExpenseServiceImpleTest
+-------------------------------------------------------------------------------
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.221 s -- in com.Soham.MoneyManager.Service.Implementations.ExpenseServiceImpleTest
