@@ -71,7 +71,6 @@ FinTrack follows a **real-world, production-style architecture** commonly used i
 - Stateless authentication using **JWT**
 - Secured endpoints via **Spring Security filters**
 - Strong password hashing and token validation
-- Centralized exception handling and input validation
 - Clean layered architecture  
   *(Controller → Service → Repository)*
 
@@ -86,5 +85,6 @@ FinTrack is intentionally **backend-heavy**, with major emphasis on:
 - Real-world deployment and scalability considerations
 
 The frontend acts as a **consumer layer** to demonstrate and validate backend capabilities.
+
 
 
